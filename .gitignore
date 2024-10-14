@@ -1,0 +1,4 @@
+__pycache__
+*.db
+.env
+auth_api.egg-info
