@@ -2,8 +2,9 @@ import io
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from .models import UserModel
-from .schemas import UserCreate, UserResponse, UserUpdate
+from services import role_check, get_current_user
+from .models import UserModel, RoleEnum
+from schemas import UserCreate, UserResponse, UserUpdate
 from .database import get_db
 import auth_api.services
 from fastapi.responses import StreamingResponse
@@ -74,3 +75,9 @@ async def get_profile_picture(user_id: int, db: Session = Depends(get_db)):
     if not user or not user.profile_picture:
         raise HTTPException(status_code=404, detail="Profile picture not found")
     return StreamingResponse(io.BytesIO(user.profile_picture), media_type="image/png")
+
+
+@router.get("/admin")
+async def admin_dashboard(current_user: UserModel = Depends(get_current_user)):
+    await role_check(current_user, RoleEnum.admin)
+    return {"message": "Welcome to the admin dashboard!"}

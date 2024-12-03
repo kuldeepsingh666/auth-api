@@ -7,7 +7,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from .models import UserModel
+from .models import UserModel, RoleEnum
 from .schemas import UserCreate, UserUpdate
 from dotenv import load_dotenv
 
@@ -24,6 +24,9 @@ bcrypt_context = CryptContext(schemes=["bcrypt"])
 async def check_existing_user(db: Session, username: str, email: str):
     return db.query(UserModel).filter(or_(UserModel.username == username, UserModel.email == email)).first()
 
+async def role_check(user: UserModel, required_role: RoleEnum):
+    if user.role != required_role:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
 
 async def create_token(id: int, username: str):
     encode = {"sub": username, "id": id}

@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 from datetime import datetime
 
 
@@ -11,7 +11,7 @@ class UserSchema(BaseModel):
 
 
 class UserCreate(UserSchema):
-    password: str
+    password: constr(min_length=8, max_length=120)
 
 
 class UserUpdate(UserSchema):
